@@ -1,8 +1,11 @@
-var dgram = require('dgram');
-var client = dgram.createSocket('udp4');
-var message = new Buffer('00010000000273da58b0000001f0', 'hex');
+var swg = require('swg')
 
-client.send(message, 0, message.length, 44453, '192.168.1.6');
-client.on('message', function(buffer, requestInfo) {
-    console.log('Received message ' + buffer.toString('hex'));
+var app = swg({
+    verbose: true
 });
+
+app.on('0002', function(req, res) {
+	console.log('in 0002');
+});
+
+app.send('00010000000273da58b0000001f0', 44453, '127.0.0.1');
