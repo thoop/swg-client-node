@@ -7,10 +7,10 @@ var app = swg({
 var connectionId = '58b026ca';
 
 app.on('0002', function(req, res) {
-	app.crcSeed = req.packet.crcSeed;
-	app.crcLength = parseInt(req.packet.crcLength, 16);
-	app.useCompression = parseInt(req.packet.useCompression, 16);
-	app.seedSize = parseInt(req.packet.seedSize, 16);
+	app.setDefault('crcSeed', req.packet.crcSeed);
+	app.setDefault('crcLength', parseInt(req.packet.crcLength, 16));
+	app.setDefault('useCompression', parseInt(req.packet.useCompression, 16));
+	app.setDefault('seedSize', parseInt(req.packet.seedSize, 16));
 
 	res.send('000900000400961F13410800757365726E616D65080070617373776F72640E0032303035303430382D31383A3030');
 });
