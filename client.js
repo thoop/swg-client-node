@@ -4,26 +4,44 @@ var app = swg({
     verbose: true
 });
 
+var port = 44453;
+var address = '127.0.0.1';
+
+app.setDefault('port', port);
+app.setDefault('address', address);
+
 var connectionId = '58b026ca';
 
-app.on('0002', function(req, res) {
+app.on('SOE_SESSION_REPLY', function(req, res) {
 	app.setDefault('crcSeed', req.packet.crcSeed);
-	app.setDefault('crcLength', parseInt(req.packet.crcLength, 16));
-	app.setDefault('useCompression', parseInt(req.packet.useCompression, 16));
-	app.setDefault('seedSize', parseInt(req.packet.seedSize, 16));
+	app.setDefault('crcLength', req.packet.crcLength);
+	app.setDefault('useCompression', !!req.packet.useCompression);
+	app.setDefault('seedSize', req.packet.seedSize);
 
-	res.send('000900000400961F13410800757365726E616D65080070617373776F72640E0032303035303430382D31383A3030');
+	res.sendPacket({
+		name: 'LoginClientId',
+		username: 'swganh0',
+		password: 'swganh',
+		version: '20050408-18:00'
+	});
 });
 
-app.on('0009', function(req, res) {
-	console.log(req.packet);
+app.on('SOE_ACK_A', function(req, res) {
+	console.log('ack', req.packet);
 });
 
-//send our connection id to the server so we can get back some info
-app.send('000100000002' + connectionId + '000001f0', 44453, '127.0.0.1');
+app.on('LoginClientToken', function(req, res) {
+	console.log('received token', req.packet);
+});
 
 
-// app.send('000900000400961F13410800757365726E616D65080070617373776F72640E0032303035303430382D31383A3030288D', 44453, '127.0.0.1');
-//0007BFB90000000000000000000000000000000000000000000000000000000200000000000000017571
-//000900000400961F13410800757365726E616D65080070617373776F72640E0032303035303430382D31383A30302855
-
+app.send({
+	packet: {
+		name: 'SOE_SESSION_REQUEST',
+		crcLength: 2,
+		connectionId: 1487939274,
+		clientUDPSize: 496
+	},
+	port: port,
+	address: address
+});
